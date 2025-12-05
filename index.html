@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Agent - Сбор семантики для Google Ads</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background-color: #ffffff;
+            color: #202124;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .logo {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        .form-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        label .required {
+            color: #d93025;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.2s;
+            background-color: #fff;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        select:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+            border-color: #e0e0e0;
+        }
+
+        .section-divider {
+            border: 0;
+            border-top: 1px solid #e8eaed;
+            margin: 32px 0 24px 0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: #202124;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #5f6368;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .help-text .icon {
+            font-size: 16px;
+        }
+
+        .geo-container {
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-top: 16px;
+        }
+
+        .geo-option {
+            margin-bottom: 16px;
+        }
+
+        .geo-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .geo-label {
+            font-size: 13px;
+            color: #5f6368;
+            margin-bottom: 4px;
+            font-weight: 400;
+        }
+
+        .or-divider {
+            text-align: center;
+            color: #5f6368;
+            font-size: 13px;
+            margin: 12px 0;
+            font-weight: 500;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+            background-color: #1a73e8;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 32px;
+        }
+
+        .submit-button:hover {
+            background-color: #1765cc;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .submit-button:active {
+            background-color: #1557b0;
+        }
+
+        .submit-button:disabled {
+            background-color: #dadce0;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .placeholder-text {
+            color: #9aa0a6;
+            text-align: center;
+            padding: 24px;
+            font-size: 14px;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #5f6368;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 8px;
+            float: right;
+            margin-top: -34px;
+            margin-right: 8px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .clear-btn:hover {
+            color: #202124;
+        }
+
+        .language-autocomplete {
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 16px;
+            }
+
+            .form-section {
+                padding: 24px 16px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🤖</div>
+            <h1>Semantic Agent</h1>
+            <p class="subtitle">Соберите семантику для Google Ads</p>
+        </div>
+
+        <div class="form-section">
+            <form id="semanticForm">
+                <!-- Ключевое слово -->
+                <div class="form-group">
+                    <label for="keyword">
+                        Ключевое слово <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="keyword" 
+                        name="keyword" 
+                        placeholder="Например: delivery service"
+                        required
+                    >
+                </div>
+
+                <hr class="section-divider">
+                <div class="section-title">Настройки поиска</div>
+
+                <!-- Страна -->
+                <div class="form-group">
+                    <label for="country">
+                        Страна <span class="required">*</span>
+                    </label>
+                    <select id="country" name="country" required>
+                        <option value="">Выберите страну</option>
+                        <option value="IE">🇮🇪 Ireland</option>
+                        <option value="UA">🇺🇦 Україна</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="GB">🇬🇧 United Kingdom</option>
+                        <option value="DE">🇩🇪 Deutschland</option>
+                        <option value="FR">🇫🇷 France</option>
+                        <option value="ES">🇪🇸 España</option>
+                        <option value="IT">🇮🇹 Italia</option>
+                        <option value="PL">🇵🇱 Polska</option>
+                        <option value="RU">🇷🇺 Россия</option>
+                    </select>
+                </div>
+
+                <!-- Язык поиска -->
+                <div class="form-group">
+                    <label for="language">
+                        Язык поиска <span class="required">*</span>
+                    </label>
+                    <select id="language" name="language" required>
+                        <option value="">Выберите язык</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="uk">🇺🇦 Українська</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                    </select>
+                    <div class="help-text">
+                        <span class="icon">💡</span>
+                        <span>Язык на котором ищет ваша аудитория</span>
+                    </div>
+                </div>
+
+                <!-- Геотаргетинг -->
+                <div id="geoTargeting" style="display: none;">
+                    <hr class="section-divider">
+                    <div class="section-title">Уточнить геотаргетинг</div>
+                    
+                    <div class="geo-container">
+                        <div class="help-text" style="margin-bottom: 16px;">
+                            <span class="icon">ℹ️</span>
+                            <span id="geoHelpText">Оставьте пустым для всей страны. Выберите один уровень если нужна конкретная локация.</span>
+                        </div>
+
+                        <!-- Region/State/County -->
+                        <div class="geo-option">
+                            <div class="geo-label" id="regionLabel">Регион:</div>
+                            <select id="region" name="region">
+                                <option value="">[Не выбрано - вся страна]</option>
+                            </select>
+                        </div>
+
+                        <div class="or-divider">ИЛИ</div>
+
+                        <!-- City -->
+                        <div class="geo-option">
+                            <div class="geo-label">Город:</div>
+                            <select id="city" name="city">
+                                <option value="">[Не выбрано - вся страна]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-button" id="submitBtn">
+                    Собрать семантику
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация стран и их геоструктуры
+        const GEO_CONFIG = {
+            "IE": {
+                name: "Ireland",
+                regionLabel: "County:",
+                defaultLanguage: "en",
+                regions: [
+                    { id: "dublin", name: "Dublin" },
+                    { id: "cork", name: "Cork" },
+                    { id: "galway", name: "Galway" },
+                    { id: "limerick", name: "Limerick" },
+                    { id: "waterford", name: "Waterford" }
+                ],
+                cities: [
+                    { id: "dublin_city", name: "Dublin" },
+                    { id: "cork_city", name: "Cork" },
+                    { id: "galway_city", name: "Galway" },
+                    { id: "limerick_city", name: "Limerick" },
+                    { id: "waterford_city", name: "Waterford" }
+                ]
+            },
+            "UA": {
+                name: "Україна",
+                regionLabel: "Область:",
+                defaultLanguage: "uk",
+                regions: [
+                    { id: "dnipro", name: "Дніпропетровська" },
+                    { id: "kyiv", name: "Київська" },
+                    { id: "lviv", name: "Львівська" },
+                    { id: "odesa", name: "Одеська" },
+                    { id: "kharkiv", name: "Харківська" }
+                ],
+                cities: [
+                    { id: "dnipro_city", name: "Дніпро" },
+                    { id: "kyiv_city", name: "Київ" },
+                    { id: "lviv_city", name: "Львів" },
+                    { id: "odesa_city", name: "Одеса" },
+                    { id: "kharkiv_city", name: "Харків" }
+                ]
+            },
+            "US": {
+                name: "United States",
+                regionLabel: "State:",
+                defaultLanguage: "en",
+                regions: [
+                    { id: "ca", name: "California" },
+                    { id: "ny", name: "New York" },
+                    { id: "tx", name: "Texas" },
+                    { id: "fl", name: "Florida" },
+                    { id: "il", name: "Illinois" }
+                ],
+                cities: [
+                    { id: "la", name: "Los Angeles" },
+                    { id: "nyc", name: "New York City" },
+                    { id: "chicago", name: "Chicago" },
+                    { id: "houston", name: "Houston" },
+                    { id: "miami", name: "Miami" }
+                ]
+            },
+            "GB": {
+                name: "United Kingdom",
+                regionLabel: "Region:",
+                defaultLanguage: "en",
+                regions: [
+                    { id: "england", name: "England" },
+                    { id: "scotland", name: "Scotland" },
+                    { id: "wales", name: "Wales" },
+                    { id: "ni", name: "Northern Ireland" }
+                ],
+                cities: [
+                    { id: "london", name: "London" },
+                    { id: "manchester", name: "Manchester" },
+                    { id: "birmingham", name: "Birmingham" },
+                    { id: "edinburgh", name: "Edinburgh" },
+                    { id: "glasgow", name: "Glasgow" }
+                ]
+            },
+            "DE": {
+                name: "Deutschland",
+                regionLabel: "Bundesland:",
+                defaultLanguage: "de",
+                regions: [
+                    { id: "bayern", name: "Bayern" },
+                    { id: "nrw", name: "Nordrhein-Westfalen" },
+                    { id: "bw", name: "Baden-Württemberg" },
+                    { id: "hessen", name: "Hessen" }
+                ],
+                cities: [
+                    { id: "berlin", name: "Berlin" },
+                    { id: "munich", name: "München" },
+                    { id: "hamburg", name: "Hamburg" },
+                    { id: "cologne", name: "Köln" }
+                ]
+            },
+            "RU": {
+                name: "Россия",
+                regionLabel: "Область:",
+                defaultLanguage: "ru",
+                regions: [
+                    { id: "moscow_region", name: "Московская область" },
+                    { id: "spb_region", name: "Ленинградская область" },
+                    { id: "sverdlovsk", name: "Свердловская область" }
+                ],
+                cities: [
+                    { id: "moscow", name: "Москва" },
+                    { id: "spb", name: "Санкт-Петербург" },
+                    { id: "ekb", name: "Екатеринбург" },
+                    { id: "kazan", name: "Казань" }
+                ]
+            }
+        };
+
+        // DOM элементы
+        const countrySelect = document.getElementById('country');
+        const languageSelect = document.getElementById('language');
+        const geoTargeting = document.getElementById('geoTargeting');
+        const regionSelect = document.getElementById('region');
+        const citySelect = document.getElementById('city');
+        const regionLabel = document.getElementById('regionLabel');
+        const geoHelpText = document.getElementById('geoHelpText');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('semanticForm');
+
+        // При выборе страны
+        countrySelect.addEventListener('change', function() {
+            const countryCode = this.value;
+            
+            if (countryCode && GEO_CONFIG[countryCode]) {
+                const config = GEO_CONFIG[countryCode];
+                
+                // Автоматически предложить язык
+                if (config.defaultLanguage && !languageSelect.value) {
+                    languageSelect.value = config.defaultLanguage;
+                }
+                
+                // Показать геотаргетинг
+                geoTargeting.style.display = 'block';
+                
+                // Обновить label для региона
+                regionLabel.textContent = config.regionLabel;
+                
+                // Обновить подсказку
+                geoHelpText.textContent = `Оставьте пустым для всей страны (${config.name}). Выберите один уровень если нужна конкретная локация.`;
+                
+                // Заполнить регионы
+                regionSelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                config.regions.forEach(region => {
+                    const option = document.createElement('option');
+                    option.value = region.id;
+                    option.textContent = region.name;
+                    regionSelect.appendChild(option);
+                });
+                
+                // Заполнить города
+                citySelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                config.cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.id;
+                    option.textContent = city.name;
+                    citySelect.appendChild(option);
+                });
+                
+                // Сбросить выбор
+                regionSelect.value = '';
+                citySelect.value = '';
+                regionSelect.disabled = false;
+                citySelect.disabled = false;
+            } else {
+                geoTargeting.style.display = 'none';
+            }
+        });
+
+        // Логика блокировки: если выбран регион - блокируем город
+        regionSelect.addEventListener('change', function() {
+            if (this.value) {
+                citySelect.value = '';
+                citySelect.disabled = true;
+            } else {
+                citySelect.disabled = false;
+            }
+        });
+
+        // Логика блокировки: если выбран город - блокируем регион
+        citySelect.addEventListener('change', function() {
+            if (this.value) {
+                regionSelect.value = '';
+                regionSelect.disabled = true;
+            } else {
+                regionSelect.disabled = false;
+            }
+        });
+
+        // Отправка формы
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                keyword: document.getElementById('keyword').value,
+                country: countrySelect.value,
+                language: languageSelect.value,
+                region: regionSelect.value,
+                city: citySelect.value
+            };
+            
+            console.log('Форма отправлена:', formData);
+            
+            // Здесь будет переход на следующий экран (парсинг)
+            alert('Форма заполнена!\n\n' + 
+                  'Ключевое слово: ' + formData.keyword + '\n' +
+                  'Страна: ' + countrySelect.options[countrySelect.selectedIndex].text + '\n' +
+                  'Язык: ' + languageSelect.options[languageSelect.selectedIndex].text + '\n' +
+                  'Регион: ' + (formData.region ? regionSelect.options[regionSelect.selectedIndex].text : 'Вся страна') + '\n' +
+                  'Город: ' + (formData.city ? citySelect.options[citySelect.selectedIndex].text : 'Вся страна') + '\n\n' +
+                  'Следующий шаг: Экран парсинга');
+        });
+    </script>
+</body>
+</html>
