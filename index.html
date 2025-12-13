@@ -441,14 +441,28 @@
             
             console.log('Form submitted:', formData);
             
-            alert('Форма заполнена!\n\n' + 
-                  'Ключевое слово: ' + formData.keyword + '\n' +
-                  'URL страницы: ' + (formData.landingUrl || 'Не указан') + '\n' +
-                  'Страна: ' + countrySelect.options[countrySelect.selectedIndex].text + '\n' +
-                  'Язык: ' + languageSelect.options[languageSelect.selectedIndex].text + '\n' +
-                  'Регион: ' + (formData.region ? regionSelect.options[regionSelect.selectedIndex].text : 'Вся страна') + '\n' +
-                  'Город: ' + (formData.city ? citySelect.options[citySelect.selectedIndex].text : 'Вся страна') + '\n\n' +
-                  'Следующий шаг: Экран парсинга');
+            // Get display names
+            const countryName = countrySelect.options[countrySelect.selectedIndex].text;
+            const languageName = languageSelect.options[languageSelect.selectedIndex].text;
+            const regionName = formData.region ? regionSelect.options[regionSelect.selectedIndex].text : '';
+            const cityName = formData.city ? citySelect.options[citySelect.selectedIndex].text : '';
+            
+            // Build query string
+            const params = new URLSearchParams({
+                keyword: formData.keyword,
+                landingUrl: formData.landingUrl,
+                country: formData.country,
+                countryName: countryName,
+                language: formData.language,
+                languageName: languageName,
+                region: formData.region,
+                regionName: regionName,
+                city: formData.city,
+                cityName: cityName
+            });
+            
+            // Redirect to processing page
+            window.location.href = 'processing.html?' + params.toString();
         });
     </script>
 </body>
