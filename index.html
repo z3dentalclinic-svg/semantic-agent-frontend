@@ -186,35 +186,6 @@
             box-shadow: none;
         }
 
-        .placeholder-text {
-            color: #9aa0a6;
-            text-align: center;
-            padding: 24px;
-            font-size: 14px;
-        }
-
-        .clear-btn {
-            background: none;
-            border: none;
-            color: #5f6368;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 0 8px;
-            float: right;
-            margin-top: -34px;
-            margin-right: 8px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .clear-btn:hover {
-            color: #202124;
-        }
-
-        .language-autocomplete {
-            position: relative;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 40px 16px;
@@ -240,7 +211,6 @@
 
         <div class="form-section">
             <form id="semanticForm">
-                <!-- Ключевое слово -->
                 <div class="form-group">
                     <label for="keyword">
                         Ключевое слово <span class="required">*</span>
@@ -254,7 +224,6 @@
                     >
                 </div>
 
-                <!-- URL продвигаемой страницы -->
                 <div class="form-group">
                     <label for="landingUrl">
                         URL продвигаемой страницы <span class="optional">(опционально)</span>
@@ -274,7 +243,6 @@
                 <hr class="section-divider">
                 <div class="section-title">Настройки поиска</div>
 
-                <!-- Страна -->
                 <div class="form-group">
                     <label for="country">
                         Страна <span class="required">*</span>
@@ -294,7 +262,6 @@
                     </select>
                 </div>
 
-                <!-- Язык поиска -->
                 <div class="form-group">
                     <label for="language">
                         Язык поиска <span class="required">*</span>
@@ -322,7 +289,6 @@
                     </div>
                 </div>
 
-                <!-- Геотаргетинг -->
                 <div id="geoTargeting" style="display: none;">
                     <hr class="section-divider">
                     <div class="section-title">Уточнить геотаргетинг</div>
@@ -333,7 +299,6 @@
                             <span id="geoHelpText">Оставьте пустым для всей страны. Выберите один уровень если нужна конкретная локация.</span>
                         </div>
 
-                        <!-- Region/State/County -->
                         <div class="geo-option">
                             <div class="geo-label" id="regionLabel">Регион:</div>
                             <select id="region" name="region">
@@ -343,7 +308,6 @@
 
                         <div class="or-divider">ИЛИ</div>
 
-                        <!-- City -->
                         <div class="geo-option">
                             <div class="geo-label">Город:</div>
                             <select id="city" name="city">
@@ -353,7 +317,6 @@
                     </div>
                 </div>
 
-                <!-- Submit Button -->
                 <button type="submit" class="submit-button" id="submitBtn">
                     Собрать семантику
                 </button>
@@ -362,122 +325,8 @@
     </div>
 
     <script>
-        // Backend API URL
         const API_URL = 'https://web-production-d9461.up.railway.app';
         
-        // Конфигурация стран и их геоструктуры
-        const GEO_CONFIG = {
-            "IE": {
-                name: "Ireland",
-                regionLabel: "County:",
-                defaultLanguage: "en",
-                regions: [
-                    { id: "dublin", name: "Dublin" },
-                    { id: "cork", name: "Cork" },
-                    { id: "galway", name: "Galway" },
-                    { id: "limerick", name: "Limerick" },
-                    { id: "waterford", name: "Waterford" }
-                ],
-                cities: [
-                    { id: "dublin_city", name: "Dublin" },
-                    { id: "cork_city", name: "Cork" },
-                    { id: "galway_city", name: "Galway" },
-                    { id: "limerick_city", name: "Limerick" },
-                    { id: "waterford_city", name: "Waterford" }
-                ]
-            },
-            "UA": {
-                name: "Україна",
-                regionLabel: "Область:",
-                defaultLanguage: "uk",
-                regions: [
-                    { id: "dnipro", name: "Дніпропетровська" },
-                    { id: "kyiv", name: "Київська" },
-                    { id: "lviv", name: "Львівська" },
-                    { id: "odesa", name: "Одеська" },
-                    { id: "kharkiv", name: "Харківська" }
-                ],
-                cities: [
-                    { id: "dnipro_city", name: "Дніпро" },
-                    { id: "kyiv_city", name: "Київ" },
-                    { id: "lviv_city", name: "Львів" },
-                    { id: "odesa_city", name: "Одеса" },
-                    { id: "kharkiv_city", name: "Харків" }
-                ]
-            },
-            "US": {
-                name: "United States",
-                regionLabel: "State:",
-                defaultLanguage: "en",
-                regions: [
-                    { id: "ca", name: "California" },
-                    { id: "ny", name: "New York" },
-                    { id: "tx", name: "Texas" },
-                    { id: "fl", name: "Florida" },
-                    { id: "il", name: "Illinois" }
-                ],
-                cities: [
-                    { id: "la", name: "Los Angeles" },
-                    { id: "nyc", name: "New York City" },
-                    { id: "chicago", name: "Chicago" },
-                    { id: "houston", name: "Houston" },
-                    { id: "miami", name: "Miami" }
-                ]
-            },
-            "GB": {
-                name: "United Kingdom",
-                regionLabel: "Region:",
-                defaultLanguage: "en",
-                regions: [
-                    { id: "england", name: "England" },
-                    { id: "scotland", name: "Scotland" },
-                    { id: "wales", name: "Wales" },
-                    { id: "ni", name: "Northern Ireland" }
-                ],
-                cities: [
-                    { id: "london", name: "London" },
-                    { id: "manchester", name: "Manchester" },
-                    { id: "birmingham", name: "Birmingham" },
-                    { id: "edinburgh", name: "Edinburgh" },
-                    { id: "glasgow", name: "Glasgow" }
-                ]
-            },
-            "DE": {
-                name: "Deutschland",
-                regionLabel: "Bundesland:",
-                defaultLanguage: "de",
-                regions: [
-                    { id: "bayern", name: "Bayern" },
-                    { id: "nrw", name: "Nordrhein-Westfalen" },
-                    { id: "bw", name: "Baden-Württemberg" },
-                    { id: "hessen", name: "Hessen" }
-                ],
-                cities: [
-                    { id: "berlin", name: "Berlin" },
-                    { id: "munich", name: "München" },
-                    { id: "hamburg", name: "Hamburg" },
-                    { id: "cologne", name: "Köln" }
-                ]
-            },
-            "RU": {
-                name: "Россия",
-                regionLabel: "Область:",
-                defaultLanguage: "ru",
-                regions: [
-                    { id: "moscow_region", name: "Московская область" },
-                    { id: "spb_region", name: "Ленинградская область" },
-                    { id: "sverdlovsk", name: "Свердловская область" }
-                ],
-                cities: [
-                    { id: "moscow", name: "Москва" },
-                    { id: "spb", name: "Санкт-Петербург" },
-                    { id: "ekb", name: "Екатеринбург" },
-                    { id: "kazan", name: "Казань" }
-                ]
-            }
-        };
-
-        // DOM элементы
         const countrySelect = document.getElementById('country');
         const languageSelect = document.getElementById('language');
         const geoTargeting = document.getElementById('geoTargeting');
@@ -485,155 +334,81 @@
         const citySelect = document.getElementById('city');
         const regionLabel = document.getElementById('regionLabel');
         const geoHelpText = document.getElementById('geoHelpText');
-        const submitBtn = document.getElementById('submitBtn');
         const form = document.getElementById('semanticForm');
 
-        // Загрузить список стран из Backend при загрузке страницы
-        async function loadCountries() {
-            try {
-                const response = await fetch(`${API_URL}/api/countries`);
-                const data = await response.json();
-                
-                if (data.countries && data.countries.length > 0) {
-                    // Очистить текущие опции кроме первой
-                    countrySelect.innerHTML = '<option value="">Выберите страну</option>';
-                    
-                    // Добавить страны из API
-                    data.countries.forEach(country => {
-                        const option = document.createElement('option');
-                        option.value = country.code;
-                        option.textContent = `${country.flag} ${country.name}`;
-                        countrySelect.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки стран:', error);
-                // Оставляем хардкоженный список если API недоступен
-            }
-        }
+        const languageDefaults = {
+            'IE': 'en', 'UA': 'uk', 'US': 'en', 'GB': 'en',
+            'DE': 'de', 'FR': 'fr', 'ES': 'es', 'IT': 'it',
+            'PL': 'pl', 'RU': 'ru'
+        };
 
-        // Загрузить локации для страны из Backend
+        const regionLabels = {
+            'IE': 'County:', 'UA': 'Область:', 'US': 'State:',
+            'GB': 'Region:', 'DE': 'Bundesland:', 'FR': 'Région:',
+            'ES': 'Comunidad:', 'IT': 'Regione:', 'PL': 'Województwo:',
+            'RU': 'Область:'
+        };
+
         async function loadLocations(countryCode) {
             try {
+                console.log('Loading locations for:', countryCode);
                 const response = await fetch(`${API_URL}/api/locations/${countryCode}`);
                 const data = await response.json();
-                
-                if (data.locations) {
-                    return data.locations;
-                }
+                console.log('Received data:', data);
+                return data.locations;
             } catch (error) {
-                console.error('Ошибка загрузки локаций:', error);
+                console.error('Error loading locations:', error);
+                return null;
             }
-            return null;
         }
 
-        // Загрузить страны при загрузке страницы
-        loadCountries();
-
-        // При выборе страны
         countrySelect.addEventListener('change', async function() {
             const countryCode = this.value;
+            console.log('Country selected:', countryCode);
             
-            if (countryCode) {
-                // Попробовать загрузить локации из Backend
-                const locations = await loadLocations(countryCode);
+            if (!countryCode) {
+                geoTargeting.style.display = 'none';
+                return;
+            }
+
+            if (languageDefaults[countryCode] && !languageSelect.value) {
+                languageSelect.value = languageDefaults[countryCode];
+            }
+
+            const locations = await loadLocations(countryCode);
+            
+            if (locations) {
+                geoTargeting.style.display = 'block';
+                regionLabel.textContent = regionLabels[countryCode] || 'Регион:';
+                geoHelpText.textContent = 'Оставьте пустым для всей страны. Выберите один уровень если нужна конкретная локация.';
                 
-                if (locations && (locations.regions || locations.cities)) {
-                    // Используем данные из Backend
-                    const config = GEO_CONFIG[countryCode] || {
-                        name: countrySelect.options[countrySelect.selectedIndex].text.replace(/^🇦-🇿\s*/, ''),
-                        regionLabel: "Регион:",
-                        defaultLanguage: "en"
-                    };
-                    
-                    // Автоматически предложить язык
-                    if (config.defaultLanguage && !languageSelect.value) {
-                        languageSelect.value = config.defaultLanguage;
-                    }
-                    
-                    // Показать геотаргетинг
-                    geoTargeting.style.display = 'block';
-                    
-                    // Обновить label для региона
-                    regionLabel.textContent = config.regionLabel;
-                    
-                    // Обновить подсказку
-                    geoHelpText.textContent = `Оставьте пустым для всей страны. Выберите один уровень если нужна конкретная локация.`;
-                    
-                    // Заполнить регионы из Backend
-                    regionSelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
-                    if (locations.regions && locations.regions.length > 0) {
-                        locations.regions.forEach(region => {
-                            const option = document.createElement('option');
-                            option.value = region.id;
-                            option.textContent = region.name;
-                            regionSelect.appendChild(option);
-                        });
-                    }
-                    
-                    // Заполнить города из Backend
-                    citySelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
-                    if (locations.cities && locations.cities.length > 0) {
-                        locations.cities.forEach(city => {
-                            const option = document.createElement('option');
-                            option.value = city.id;
-                            option.textContent = city.name;
-                            citySelect.appendChild(option);
-                        });
-                    }
-                    
-                    // Сбросить выбор
-                    regionSelect.value = '';
-                    citySelect.value = '';
-                    regionSelect.disabled = false;
-                    citySelect.disabled = false;
-                } else if (GEO_CONFIG[countryCode]) {
-                    // Fallback на хардкоженные данные
-                    const config = GEO_CONFIG[countryCode];
-                    
-                    // Автоматически предложить язык
-                    if (config.defaultLanguage && !languageSelect.value) {
-                        languageSelect.value = config.defaultLanguage;
-                    }
-                    
-                    // Показать геотаргетинг
-                    geoTargeting.style.display = 'block';
-                    
-                    // Обновить label для региона
-                    regionLabel.textContent = config.regionLabel;
-                    
-                    // Обновить подсказку
-                    geoHelpText.textContent = `Оставьте пустым для всей страны (${config.name}). Выберите один уровень если нужна конкретная локация.`;
-                    
-                    // Заполнить регионы
-                    regionSelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
-                    config.regions.forEach(region => {
+                regionSelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                if (locations.regions && locations.regions.length > 0) {
+                    locations.regions.forEach(region => {
                         const option = document.createElement('option');
                         option.value = region.id;
                         option.textContent = region.name;
                         regionSelect.appendChild(option);
                     });
-                    
-                    // Заполнить города
-                    citySelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
-                    config.cities.forEach(city => {
+                }
+                
+                citySelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                if (locations.cities && locations.cities.length > 0) {
+                    locations.cities.forEach(city => {
                         const option = document.createElement('option');
                         option.value = city.id;
                         option.textContent = city.name;
                         citySelect.appendChild(option);
                     });
-                    
-                    // Сбросить выбор
-                    regionSelect.value = '';
-                    citySelect.value = '';
-                    regionSelect.disabled = false;
-                    citySelect.disabled = false;
-                } else {
-                geoTargeting.style.display = 'none';
+                }
+                
+                regionSelect.value = '';
+                citySelect.value = '';
+                regionSelect.disabled = false;
+                citySelect.disabled = false;
             }
         });
 
-        // Логика блокировки: если выбран регион - блокируем город
         regionSelect.addEventListener('change', function() {
             if (this.value) {
                 citySelect.value = '';
@@ -643,7 +418,6 @@
             }
         });
 
-        // Логика блокировки: если выбран город - блокируем регион
         citySelect.addEventListener('change', function() {
             if (this.value) {
                 regionSelect.value = '';
@@ -653,7 +427,6 @@
             }
         });
 
-        // Отправка формы
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -666,9 +439,8 @@
                 city: citySelect.value
             };
             
-            console.log('Форма отправлена:', formData);
+            console.log('Form submitted:', formData);
             
-            // Здесь будет переход на следующий экран (парсинг)
             alert('Форма заполнена!\n\n' + 
                   'Ключевое слово: ' + formData.keyword + '\n' +
                   'URL страницы: ' + (formData.landingUrl || 'Не указан') + '\n' +
