@@ -69,7 +69,13 @@
             color: #d93025;
         }
 
+        label .optional {
+            color: #9aa0a6;
+            font-weight: 400;
+        }
+
         input[type="text"],
+        input[type="url"],
         select {
             width: 100%;
             padding: 12px 16px;
@@ -82,6 +88,7 @@
         }
 
         input[type="text"]:focus,
+        input[type="url"]:focus,
         select:focus {
             border-color: #1a73e8;
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
@@ -245,6 +252,23 @@
                         placeholder="Например: delivery service"
                         required
                     >
+                </div>
+
+                <!-- URL продвигаемой страницы -->
+                <div class="form-group">
+                    <label for="landingUrl">
+                        URL продвигаемой страницы <span class="optional">(опционально)</span>
+                    </label>
+                    <input 
+                        type="url" 
+                        id="landingUrl" 
+                        name="landingUrl" 
+                        placeholder="https://example.com/your-page"
+                    >
+                    <div class="help-text">
+                        <span class="icon">🔗</span>
+                        <span>Ссылка на страницу которую вы продвигаете</span>
+                    </div>
                 </div>
 
                 <hr class="section-divider">
@@ -536,6 +560,7 @@
             
             const formData = {
                 keyword: document.getElementById('keyword').value,
+                landingUrl: document.getElementById('landingUrl').value,
                 country: countrySelect.value,
                 language: languageSelect.value,
                 region: regionSelect.value,
@@ -547,6 +572,7 @@
             // Здесь будет переход на следующий экран (парсинг)
             alert('Форма заполнена!\n\n' + 
                   'Ключевое слово: ' + formData.keyword + '\n' +
+                  'URL страницы: ' + (formData.landingUrl || 'Не указан') + '\n' +
                   'Страна: ' + countrySelect.options[countrySelect.selectedIndex].text + '\n' +
                   'Язык: ' + languageSelect.options[languageSelect.selectedIndex].text + '\n' +
                   'Регион: ' + (formData.region ? regionSelect.options[regionSelect.selectedIndex].text : 'Вся страна') + '\n' +
