@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обработка запроса - Semantic Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .logo {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stages {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .stage {
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .stage.active {
+            opacity: 1;
+        }
+
+        .stage.completed {
+            opacity: 0.6;
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stage-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .stage.active .stage-icon {
+            background: rgba(255, 255, 255, 0.3);
+            animation: rotate 2s linear infinite;
+        }
+
+        .stage.completed .stage-icon {
+            background: rgba(76, 175, 80, 1);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stage-info {
+            flex: 1;
+        }
+
+        .stage-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .stage-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .stage.completed .progress-bar {
+            width: 100% !important;
+        }
+
+        .stage-status {
+            font-size: 15px;
+            font-weight: 500;
+            opacity: 0.95;
+            min-height: 22px;
+        }
+
+        .query-info {
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            opacity: 0.7;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .logo {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🤖</div>
+            <h1>Semantic Agent</h1>
+            <p class="subtitle">Собираем семантику для вашей кампании</p>
+        </div>
+
+        <div class="card">
+            <div class="stages">
+                <!-- Stage 1: Keyword Generation -->
+                <div class="stage" id="stage1">
+                    <div class="stage-header">
+                        <div class="stage-icon">🔍</div>
+                        <div class="stage-info">
+                            <div class="stage-title">Генерация ключевых слов</div>
+                            <div class="stage-subtitle">Собираем релевантные запросы</div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress1"></div>
+                    </div>
+                    <div class="stage-status" id="status1">Начинаем сбор...</div>
+                </div>
+
+                <!-- Stage 2: Semantic Grouping -->
+                <div class="stage" id="stage2">
+                    <div class="stage-header">
+                        <div class="stage-icon">🤖</div>
+                        <div class="stage-info">
+                            <div class="stage-title">Семантическая группировка</div>
+                            <div class="stage-subtitle">AI анализирует намерения пользователей</div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress2"></div>
+                    </div>
+                    <div class="stage-status" id="status2">Ожидание...</div>
+                </div>
+
+                <!-- Stage 3: Cluster Formation -->
+                <div class="stage" id="stage3">
+                    <div class="stage-header">
+                        <div class="stage-icon">📊</div>
+                        <div class="stage-info">
+                            <div class="stage-title">Формирование кластеров</div>
+                            <div class="stage-subtitle">Создаём структуру кампании</div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress3"></div>
+                    </div>
+                    <div class="stage-status" id="status3">Ожидание...</div>
+                </div>
+            </div>
+
+            <!-- Query Info -->
+            <div class="query-info" id="queryInfo">
+                <div class="info-row">
+                    <span class="info-label">Ключевое слово:</span>
+                    <span class="info-value" id="keywordDisplay">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Страна:</span>
+                    <span class="info-value" id="countryDisplay">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Язык:</span>
+                    <span class="info-value" id="languageDisplay">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate processing stages
+        let currentStage = 0;
+        let keywordsFound = 0;
+        let clustersCreated = 0;
+        let timeRemaining = 0;
+
+        // Get query parameters from URL (will be passed from landing page)
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyword = urlParams.get('keyword') || 'delivery service';
+        const country = urlParams.get('country') || 'Ireland';
+        const language = urlParams.get('language') || 'English';
+
+        // Display query info
+        document.getElementById('keywordDisplay').textContent = keyword;
+        document.getElementById('countryDisplay').textContent = country;
+        document.getElementById('languageDisplay').textContent = language;
+
+        // Stage 1: Keyword Generation
+        function startStage1() {
+            currentStage = 1;
+            document.getElementById('stage1').classList.add('active');
+            
+            let progress = 0;
+            const stage1Interval = setInterval(() => {
+                progress += Math.random() * 15;
+                keywordsFound = Math.floor(progress * 5);
+                
+                if (progress >= 100) {
+                    progress = 100;
+                    keywordsFound = 247; // Final count
+                    clearInterval(stage1Interval);
+                    completeStage1();
+                }
+                
+                document.getElementById('progress1').style.width = progress + '%';
+                document.getElementById('status1').textContent = `Найдено: ${keywordsFound} ключевых слов`;
+            }, 300);
+        }
+
+        function completeStage1() {
+            document.getElementById('stage1').classList.remove('active');
+            document.getElementById('stage1').classList.add('completed');
+            document.getElementById('stage1').querySelector('.stage-icon').textContent = '✓';
+            
+            setTimeout(() => startStage2(), 500);
+        }
+
+        // Stage 2: Semantic Grouping
+        function startStage2() {
+            currentStage = 2;
+            document.getElementById('stage2').classList.add('active');
+            
+            // Calculate estimated time based on keywords found
+            const estimatedSeconds = Math.ceil(keywordsFound / 10); // ~10 keywords per second
+            timeRemaining = estimatedSeconds;
+            
+            let progress = 0;
+            const stage2Interval = setInterval(() => {
+                progress += Math.random() * 8;
+                timeRemaining = Math.max(0, estimatedSeconds - Math.floor((progress / 100) * estimatedSeconds));
+                
+                if (progress >= 100) {
+                    progress = 100;
+                    timeRemaining = 0;
+                    clearInterval(stage2Interval);
+                    completeStage2();
+                }
+                
+                document.getElementById('progress2').style.width = progress + '%';
+                document.getElementById('status2').textContent = `Осталось ~${timeRemaining} секунд...`;
+            }, 400);
+        }
+
+        function completeStage2() {
+            document.getElementById('stage2').classList.remove('active');
+            document.getElementById('stage2').classList.add('completed');
+            document.getElementById('stage2').querySelector('.stage-icon').textContent = '✓';
+            document.getElementById('status2').textContent = 'Семантика проанализирована!';
+            
+            setTimeout(() => startStage3(), 500);
+        }
+
+        // Stage 3: Cluster Formation
+        function startStage3() {
+            currentStage = 3;
+            document.getElementById('stage3').classList.add('active');
+            
+            let progress = 0;
+            const stage3Interval = setInterval(() => {
+                progress += Math.random() * 12;
+                clustersCreated = Math.floor((progress / 100) * 15);
+                
+                if (progress >= 100) {
+                    progress = 100;
+                    clustersCreated = 12; // Final count
+                    clearInterval(stage3Interval);
+                    completeStage3();
+                }
+                
+                document.getElementById('progress3').style.width = progress + '%';
+                document.getElementById('status3').textContent = `Создано кластеров: ${clustersCreated}`;
+            }, 350);
+        }
+
+        function completeStage3() {
+            document.getElementById('stage3').classList.remove('active');
+            document.getElementById('stage3').classList.add('completed');
+            document.getElementById('stage3').querySelector('.stage-icon').textContent = '✓';
+            document.getElementById('status3').textContent = 'Кластеры готовы!';
+            
+            // Redirect to results page after 1 second
+            setTimeout(() => {
+                // window.location.href = 'results.html?keyword=' + encodeURIComponent(keyword);
+                alert('Готово! Переход на страницу результатов...');
+            }, 1000);
+        }
+
+        // Start processing
+        setTimeout(() => startStage1(), 500);
+    </script>
+</body>
+</html>
