@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Semantic Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+        .top-bar {
+            max-width: 1400px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .nav-btn {
+            background: #6c757d;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        .lang-selector {
+            position: relative;
+        }
+        .lang-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: #667eea;
+        }
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 150px;
+            z-index: 1000;
+        }
+        .lang-dropdown.active { display: block; }
+        .lang-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .lang-option:last-child { border-bottom: none; }
+        .lang-option:hover { background: #f5f5f5; }
+        .lang-option.selected {
+            background: #e8eaf6;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #202124;
+        }
+        .export-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+        }
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        .cluster {
+            margin-bottom: 40px;
+        }
+        .cluster-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, #764ba2 0%, #aac5f5 100%);
+            color: #ffffff;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .cluster-header:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 3px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .keywords-table .checkbox {
+            border-color: #999;
+        }
+        .keywords-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .keywords-table th {
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 13px;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .keywords-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        .keywords-table tr:last-child td {
+            border-bottom: none;
+        }
+        .keywords-table td:first-child {
+            width: 30px;
+        }
+        .keyword-name {
+            color: #202124;
+            font-weight: 400;
+        }
+        .metric {
+            color: #1976d2;
+            text-align: center;
+            font-weight: 500;
+        }
+        .chart-container {
+            width: 100px;
+            margin: 0 auto;
+        }
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 30px;
+            gap: 2px;
+        }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, #1976d2, #42a5f5);
+            border-radius: 2px 2px 0 0;
+            min-height: 3px;
+        }
+        .trend-value {
+            color: #1976d2;
+            font-weight: 600;
+        }
+        .comp-value {
+            color: #f57c00;
+            font-weight: 600;
+        }
+        .level-low {
+            color: #4caf50;
+            font-weight: 600;
+        }
+        .level-medium {
+            color: #ff9800;
+            font-weight: 600;
+        }
+        .level-high {
+            color: #f44336;
+            font-weight: 600;
+        }
+        .next-button {
+            width: 100%;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 32px;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s;
+        }
+        .next-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.history.back()">← <span data-i18n="back">Back</span></button>
+            <button class="nav-btn" onclick="alert('Next page not implemented yet')">→ <span data-i18n="forward">Forward</span></button>
+        </div>
+        <div class="lang-selector">
+            <button class="lang-btn" id="langBtn">EN</button>
+            <div class="lang-dropdown" id="langDropdown">
+                <div class="lang-option" data-lang="en">EN - English</div>
+                <div class="lang-option" data-lang="ru">RU - Русский</div>
+                <div class="lang-option" data-lang="de">DE - Deutsch</div>
+                <div class="lang-option" data-lang="es">ES - Español</div>
+                <div class="lang-option" data-lang="fr">FR - Français</div>
+                <div class="lang-option" data-lang="it">IT - Italiano</div>
+                <div class="lang-option" data-lang="pl">PL - Polski</div>
+                <div class="lang-option" data-lang="ua">UA - Українська</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header-row">
+            <h1 data-i18n="results">Results</h1>
+            <button class="export-btn" onclick="exportToCSV()">
+                <span>📥</span>
+                <span data-i18n="exportCSV">Export CSV</span>
+            </button>
+        </div>
+
+        <div class="cluster">
+            <div class="cluster-header">
+                <div class="checkbox"></div>
+                <span data-i18n="cluster1">Cluster 1: Generator Repair Dnipro</span>
+            </div>
+            <table class="keywords-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th data-i18n="keyword">Keyword</th>
+                        <th style="text-align: center;" data-i18n="volume">Volume</th>
+                        <th style="text-align: center;">CPC Min</th>
+                        <th style="text-align: center;">CPC Max</th>
+                        <th style="text-align: center;" data-i18n="seasonality">Seasonality</th>
+                        <th style="text-align: center;" data-i18n="trend">Trend</th>
+                        <th style="text-align: center;" data-i18n="comp">Comp</th>
+                        <th style="text-align: center;" data-i18n="level">Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><div class="checkbox"></div></td>
+                        <td class="keyword-name">generator repair</td>
+                        <td class="metric">500-1000</td>
+                        <td class="metric">$1.25</td>
+                        <td class="metric">$3.50</td>
+                        <td>
+                            <div class="chart-container">
+                                <div class="chart-bars">
+                                    <div class="chart-bar" style="height: 40%;"></div>
+                                    <div class="chart-bar" style="height: 55%;"></div>
+                                    <div class="chart-bar" style="height: 70%;"></div>
+                                    <div class="chart-bar" style="height: 85%;"></div>
+                                    <div class="chart-bar" style="height: 95%;"></div>
+                                    <div class="chart-bar" style="height: 100%;"></div>
+                                    <div class="chart-bar" style="height: 90%;"></div>
+                                    <div class="chart-bar" style="height: 75%;"></div>
+                                    <div class="chart-bar" style="height: 60%;"></div>
+                                    <div class="chart-bar" style="height: 50%;"></div>
+                                    <div class="chart-bar" style="height: 45%;"></div>
+                                    <div class="chart-bar" style="height: 50%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="metric trend-value">30</td>
+                        <td class="metric comp-value">50</td>
+                        <td class="metric level-low">Low</td>
+                    </tr>
+                    <tr>
+                        <td><div class="checkbox"></div></td>
+                        <td class="keyword-name">auto generator repair</td>
+                        <td class="metric">0-100</td>
+                        <td class="metric">$1.25</td>
+                        <td class="metric">$3.50</td>
+                        <td>
+                            <div class="chart-container">
+                                <div class="chart-bars">
+                                    <div class="chart-bar" style="height: 30%;"></div>
+                                    <div class="chart-bar" style="height: 35%;"></div>
+                                    <div class="chart-bar" style="height: 50%;"></div>
+                                    <div class="chart-bar" style="height: 65%;"></div>
+                                    <div class="chart-bar" style="height: 80%;"></div>
+                                    <div class="chart-bar" style="height: 90%;"></div>
+                                    <div class="chart-bar" style="height: 85%;"></div>
+                                    <div class="chart-bar" style="height: 70%;"></div>
+                                    <div class="chart-bar" style="height: 55%;"></div>
+                                    <div class="chart-bar" style="height: 45%;"></div>
+                                    <div class="chart-bar" style="height: 35%;"></div>
+                                    <div class="chart-bar" style="height: 30%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="metric trend-value">20</td>
+                        <td class="metric comp-value">60</td>
+                        <td class="metric level-medium">Medium</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button class="next-button" onclick="alert('Export function coming soon!')" data-i18n="next">Next</button>
+    </div>
+
+    <script>
+        const translations = {
+            en: { back: "Back", forward: "Forward", results: "Results", exportCSV: "Export CSV", cluster1: "Cluster 1: Generator Repair Dnipro", keyword: "Keyword", volume: "Volume", seasonality: "Seasonality", trend: "Trend", comp: "Comp", level: "Level", next: "Next" },
+            ru: { back: "Назад", forward: "Вперед", results: "Результаты", exportCSV: "Экспорт CSV", cluster1: "Кластер 1: Ремонт генераторов Днепр", keyword: "Ключевое слово", volume: "Частота", seasonality: "Сезонность", trend: "Тренд", comp: "Конкуренция", level: "Уровень", next: "Далее" },
+            de: { back: "Zurück", forward: "Vorwärts", results: "Ergebnisse", exportCSV: "CSV exportieren", cluster1: "Cluster 1: Generatorreparatur Dnipro", keyword: "Stichwort", volume: "Volumen", seasonality: "Saisonalität", trend: "Trend", comp: "Wettbewerb", level: "Stufe", next: "Weiter" },
+            es: { back: "Atrás", forward: "Adelante", results: "Resultados", exportCSV: "Exportar CSV", cluster1: "Cluster 1: Reparación de generadores Dnipro", keyword: "Palabra clave", volume: "Volumen", seasonality: "Estacionalidad", trend: "Tendencia", comp: "Competencia", level: "Nivel", next: "Siguiente" },
+            fr: { back: "Retour", forward: "Avant", results: "Résultats", exportCSV: "Exporter CSV", cluster1: "Cluster 1: Réparation générateur Dnipro", keyword: "Mot-clé", volume: "Volume", seasonality: "Saisonnalité", trend: "Tendance", comp: "Concurrence", level: "Niveau", next: "Suivant" },
+            it: { back: "Indietro", forward: "Avanti", results: "Risultati", exportCSV: "Esporta CSV", cluster1: "Cluster 1: Riparazione generatore Dnipro", keyword: "Parola chiave", volume: "Volume", seasonality: "Stagionalità", trend: "Tendenza", comp: "Competizione", level: "Livello", next: "Avanti" },
+            pl: { back: "Wstecz", forward: "Naprzód", results: "Wyniki", exportCSV: "Eksportuj CSV", cluster1: "Klaster 1: Naprawa generatorów Dnipro", keyword: "Słowo kluczowe", volume: "Wolumen", seasonality: "Sezonowość", trend: "Trend", comp: "Konkurencja", level: "Poziom", next: "Dalej" },
+            ua: { back: "Назад", forward: "Вперед", results: "Результати", exportCSV: "Експорт CSV", cluster1: "Кластер 1: Ремонт генераторів Дніпро", keyword: "Ключове слово", volume: "Частота", seasonality: "Сезонність", trend: "Тренд", comp: "Конкуренція", level: "Рівень", next: "Далі" }
+        };
+
+        function exportToCSV() {
+            // Collect all keywords data
+            const csvRows = [];
+            csvRows.push(['Cluster', 'Keyword', 'Volume', 'CPC Min', 'CPC Max', 'Trend', 'Competition', 'Level'].join(','));
+            
+            // Demo data
+            csvRows.push(['Cluster 1: Generator Repair Dnipro', 'generator repair', '500-1000', '$1.25', '$3.50', '30', '50', 'Low'].join(','));
+            csvRows.push(['Cluster 1: Generator Repair Dnipro', 'auto generator repair', '0-100', '$1.25', '$3.50', '20', '60', 'Medium'].join(','));
+            
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'semantic_keywords_' + new Date().getTime() + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        let currentLang = localStorage.getItem('selectedLanguage') || 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('selectedLanguage', lang);
+            document.getElementById('langBtn').textContent = lang.toUpperCase();
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.getAttribute('data-lang') === lang) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        document.getElementById('langBtn').addEventListener('click', () => {
+            document.getElementById('langDropdown').classList.toggle('active');
+        });
+
+        document.querySelectorAll('.lang-option').forEach(option => {
+            option.addEventListener('click', () => {
+                setLanguage(option.getAttribute('data-lang'));
+                document.getElementById('langDropdown').classList.remove('active');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.lang-selector')) {
+                document.getElementById('langDropdown').classList.remove('active');
+            }
+        });
+
+        setLanguage(currentLang);
+    </script>
+</body>
+</html>
