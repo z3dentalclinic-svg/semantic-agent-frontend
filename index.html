@@ -362,6 +362,9 @@
     </div>
 
     <script>
+        // Backend API URL
+        const API_URL = 'https://web-production-d9461.up.railway.app';
+        
         // Конфигурация стран и их геоструктуры
         const GEO_CONFIG = {
             "IE": {
@@ -485,12 +488,108 @@
         const submitBtn = document.getElementById('submitBtn');
         const form = document.getElementById('semanticForm');
 
+        // Загрузить список стран из Backend при загрузке страницы
+        async function loadCountries() {
+            try {
+                const response = await fetch(`${API_URL}/api/countries`);
+                const data = await response.json();
+                
+                if (data.countries && data.countries.length > 0) {
+                    // Очистить текущие опции кроме первой
+                    countrySelect.innerHTML = '<option value="">Выберите страну</option>';
+                    
+                    // Добавить страны из API
+                    data.countries.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.code;
+                        option.textContent = `${country.flag} ${country.name}`;
+                        countrySelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки стран:', error);
+                // Оставляем хардкоженный список если API недоступен
+            }
+        }
+
+        // Загрузить локации для страны из Backend
+        async function loadLocations(countryCode) {
+            try {
+                const response = await fetch(`${API_URL}/api/locations/${countryCode}`);
+                const data = await response.json();
+                
+                if (data.locations) {
+                    return data.locations;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки локаций:', error);
+            }
+            return null;
+        }
+
+        // Загрузить страны при загрузке страницы
+        loadCountries();
+
         // При выборе страны
-        countrySelect.addEventListener('change', function() {
+        countrySelect.addEventListener('change', async function() {
             const countryCode = this.value;
             
-            if (countryCode && GEO_CONFIG[countryCode]) {
-                const config = GEO_CONFIG[countryCode];
+            if (countryCode) {
+                // Попробовать загрузить локации из Backend
+                const locations = await loadLocations(countryCode);
+                
+                if (locations && (locations.regions || locations.cities)) {
+                    // Используем данные из Backend
+                    const config = GEO_CONFIG[countryCode] || {
+                        name: countrySelect.options[countrySelect.selectedIndex].text.replace(/^🇦-🇿\s*/, ''),
+                        regionLabel: "Регион:",
+                        defaultLanguage: "en"
+                    };
+                    
+                    // Автоматически предложить язык
+                    if (config.defaultLanguage && !languageSelect.value) {
+                        languageSelect.value = config.defaultLanguage;
+                    }
+                    
+                    // Показать геотаргетинг
+                    geoTargeting.style.display = 'block';
+                    
+                    // Обновить label для региона
+                    regionLabel.textContent = config.regionLabel;
+                    
+                    // Обновить подсказку
+                    geoHelpText.textContent = `Оставьте пустым для всей страны. Выберите один уровень если нужна конкретная локация.`;
+                    
+                    // Заполнить регионы из Backend
+                    regionSelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                    if (locations.regions && locations.regions.length > 0) {
+                        locations.regions.forEach(region => {
+                            const option = document.createElement('option');
+                            option.value = region.id;
+                            option.textContent = region.name;
+                            regionSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // Заполнить города из Backend
+                    citySelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                    if (locations.cities && locations.cities.length > 0) {
+                        locations.cities.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city.id;
+                            option.textContent = city.name;
+                            citySelect.appendChild(option);
+                        });
+                    }
+                    
+                    // Сбросить выбор
+                    regionSelect.value = '';
+                    citySelect.value = '';
+                    regionSelect.disabled = false;
+                    citySelect.disabled = false;
+                } else if (GEO_CONFIG[countryCode]) {
+                    // Fallback на хардкоженные данные
+                    const config = GEO_CONFIG[countryCode];
                 
                 // Автоматически предложить язык
                 if (config.defaultLanguage && !languageSelect.value) {
