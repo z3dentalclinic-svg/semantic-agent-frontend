@@ -590,45 +590,45 @@
                 } else if (GEO_CONFIG[countryCode]) {
                     // Fallback на хардкоженные данные
                     const config = GEO_CONFIG[countryCode];
-                
-                // Автоматически предложить язык
-                if (config.defaultLanguage && !languageSelect.value) {
-                    languageSelect.value = config.defaultLanguage;
-                }
-                
-                // Показать геотаргетинг
-                geoTargeting.style.display = 'block';
-                
-                // Обновить label для региона
-                regionLabel.textContent = config.regionLabel;
-                
-                // Обновить подсказку
-                geoHelpText.textContent = `Оставьте пустым для всей страны (${config.name}). Выберите один уровень если нужна конкретная локация.`;
-                
-                // Заполнить регионы
-                regionSelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
-                config.regions.forEach(region => {
-                    const option = document.createElement('option');
-                    option.value = region.id;
-                    option.textContent = region.name;
-                    regionSelect.appendChild(option);
-                });
-                
-                // Заполнить города
-                citySelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
-                config.cities.forEach(city => {
-                    const option = document.createElement('option');
-                    option.value = city.id;
-                    option.textContent = city.name;
-                    citySelect.appendChild(option);
-                });
-                
-                // Сбросить выбор
-                regionSelect.value = '';
-                citySelect.value = '';
-                regionSelect.disabled = false;
-                citySelect.disabled = false;
-            } else {
+                    
+                    // Автоматически предложить язык
+                    if (config.defaultLanguage && !languageSelect.value) {
+                        languageSelect.value = config.defaultLanguage;
+                    }
+                    
+                    // Показать геотаргетинг
+                    geoTargeting.style.display = 'block';
+                    
+                    // Обновить label для региона
+                    regionLabel.textContent = config.regionLabel;
+                    
+                    // Обновить подсказку
+                    geoHelpText.textContent = `Оставьте пустым для всей страны (${config.name}). Выберите один уровень если нужна конкретная локация.`;
+                    
+                    // Заполнить регионы
+                    regionSelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                    config.regions.forEach(region => {
+                        const option = document.createElement('option');
+                        option.value = region.id;
+                        option.textContent = region.name;
+                        regionSelect.appendChild(option);
+                    });
+                    
+                    // Заполнить города
+                    citySelect.innerHTML = '<option value="">[Не выбрано - вся страна]</option>';
+                    config.cities.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city.id;
+                        option.textContent = city.name;
+                        citySelect.appendChild(option);
+                    });
+                    
+                    // Сбросить выбор
+                    regionSelect.value = '';
+                    citySelect.value = '';
+                    regionSelect.disabled = false;
+                    citySelect.disabled = false;
+                } else {
                 geoTargeting.style.display = 'none';
             }
         });
