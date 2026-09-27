@@ -759,7 +759,7 @@ html[data-run="on"] .stage{display:none}
 .cl.blk .khead span:nth-child(3){display:flex}
 .cl.blk .empty{padding:18px;text-align:center;color:#8A8A86}
 /* окно прогресса: строки поиска и операции видны, только пока идут; бар операции без процента — бегущий */
-.opbox{opacity:1;transform:none;pointer-events:auto;display:none}
+.opbox{opacity:1;transform:none;pointer-events:none;display:none}   /* окно прогресса не перехватывает клики: кнопки модулей под ним остаются нажимаемыми */
 .opbox:has(.op.show){display:block}
 .opbox .op{display:none}
 .opbox .op.show{display:block}
@@ -796,6 +796,16 @@ html:not([data-run="on"]) .selfab{display:none!important}
 }
 /* кнопки модулей — строго после прогона (решение по варианту H); до прогона работать им не с чем */
 html:not([data-run="on"]) .after{display:none!important}
+
+/* подсказка «сначала выберите ключи» (минуса без отмеченных ключей) */
+.opbox .op.hint .dot{background:#D97706;animation:none}
+.opbox .op.hint .st{color:#92400E}
+.opbox .op.hint .bar{display:none}
+#clSelBar.flash{animation:selFlash 1.1s ease-in-out 3;border-radius:10px}
+@keyframes selFlash{0%,100%{background:transparent;box-shadow:none}50%{background:#FEF3C7;box-shadow:0 0 0 6px #FEF3C7}}
+/* разделитель только между двумя видимыми строками окна */
+.opbox .op+.op{border-top:none}
+.opbox .op.show~.op.show{border-top:1px solid #F0EEE9}
 
 /* ═══════════ ПЛАНШЕТ (2026-09-27): 761–1180 px — промежуточная раскладка ═══════════ */
 @media (min-width:761px) and (max-width:1180px){
@@ -2965,7 +2975,8 @@ function autopilotJSON() {
 }
 async function runMinus(mode) {
   if (!filteredData) { alert('Нет данных'); return; }
-  if (!selectedKws.size) { alert('Отметьте в кластерах ключи, по которым будете рекламироваться'); return; }
+  // if (!selectedKws.size) { alert('Отметьте в кластерах ключи, по которым будете рекламироваться'); return; }   // v1.4
+  if (!selectedKws.size) { needKeysHint(); return; }   // v2.1
   var st = document.getElementById('minusStatus');
   setMinusButtons(false);
   document.getElementById('resTabs').style.display = 'flex';
@@ -3614,6 +3625,8 @@ var _fabTT = null;
 function fabUpdate() {
   var fab = document.getElementById('selfab'), n = selectedKws.size;
   fab.querySelector('.n').textContent = n; fab.classList.toggle('off', !n); fab.title = n ? '' : 'Отметьте ключи в таблице';
+  var op = document.getElementById('opProgress');                 // ключи выбраны — подсказка «сначала выберите ключи» больше не нужна
+  if (n && op && /\bhint\b/.test(op.className)) { op.className = 'op op-progress'; document.getElementById('clSelBar').classList.remove('flash'); }
 }
 function fabSay(t) { var tip = document.querySelector('#selfab .tip'); tip.textContent = t; tip.classList.add('on'); clearTimeout(_fabTT); _fabTT = setTimeout(function() { tip.classList.remove('on'); }, 1600); }
 function fabCopyOld(txt) { var ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
@@ -3719,6 +3732,20 @@ function exportXLSX() {
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function() { setTimeout(hook, 500); setTimeout(introTips, 3100); });
 })();
 syncProjUI(); fabUpdate(); opsPlace();
+
+// ─── минуса без выбранных ключей: подсказка, какие ключи отметить (v2.1) ───
+var _hintT = null;
+function needKeysHint() {
+  showTab('keys');
+  var el = document.getElementById('opProgress');
+  el.className = 'op op-progress show hint';
+  document.getElementById('opTitle').textContent = 'Сначала выберите ключи';
+  document.getElementById('opStep').textContent = 'Отметьте галочками ключи, по которым будете рекламироваться, — минус-слова строятся от них.';
+  document.getElementById('opTime').textContent = '';
+  opsPlace();
+  var bar = document.getElementById('clSelBar'); bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+  clearTimeout(_hintT); _hintT = setTimeout(function() { if (/\bhint\b/.test(el.className)) el.className = 'op op-progress'; bar.classList.remove('flash'); }, 6000);
+}
 
 </script>
 </body>
